@@ -6,7 +6,7 @@
 <title>DimeX Dashboard</title>
 
 <script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.9.1/dist/index.umd.js"></script>
+<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
 
 <style>
@@ -132,44 +132,62 @@ async function connect(){
 
 try{
 
-setStatus("Connecting...");
+setStatus("Connecting wallet...");
 
-if(typeof window.ethereum !== "undefined"){
+let providerInstance;
 
-provider = new ethers.providers.Web3Provider(window.ethereum);
-await window.ethereum.request({ method: "eth_requestAccounts" });
-
-}else{
-
-const wcProvider = await window.EthereumProvider.init({
-projectId: "62a73933d62534edcd2f54b8a06c4319",
-chains: [56],
-showQrModal: true
-});
-
-await wcProvider.enable();
-provider = new ethers.providers.Web3Provider(wcProvider);
-
+// Desktop MetaMask
+if(window.ethereum){
+providerInstance = new ethers.providers.Web3Provider(window.ethereum);
+await providerInstance.send("eth_requestAccounts", []);
 }
 
+// Chrome mobile / other wallets
+else{
+
+const wc = await window.EthereumProvider.init({
+projectId: "62a73933d62534edcd2f54b8a06c4319",
+chains: [56],
+showQrModal: true,
+metadata: {
+name: "DimeX",
+description: "DimeX Staking",
+url: window.location.origin,
+icons: ["https://i.ibb.co/zVB8fHMD/logo.png"]
+}
+});
+
+await wc.enable();
+providerInstance = new ethers.providers.Web3Provider(wc);
+}
+
+provider = providerInstance;
 signer = provider.getSigner();
 
 const net = await provider.getNetwork();
-if(net.chainId!==56){alert("Switch to BSC");return;}
+if(net.chainId !== 56){
+alert("Please switch wallet to BSC network");
+return;
+}
 
-staking=new ethers.Contract(STAKING_ADDRESS,ABI,signer);
-usdt=new ethers.Contract(USDT,ERC20,signer);
-dx=new ethers.Contract(DX_TOKEN,ERC20,signer);
+// contracts
+staking = new ethers.Contract(STAKING_ADDRESS, ABI, signer);
+usdt = new ethers.Contract(USDT, ERC20, signer);
+dx = new ethers.Contract(DX_TOKEN, ERC20, signer);
 
-let addr=await signer.getAddress();
-document.getElementById("wallet").innerHTML="Wallet: "+addr;
+// wallet address
+let addr = await signer.getAddress();
+document.getElementById("wallet").innerHTML = "Wallet: " + addr;
 
-document.getElementById("refInput").value=location.href+"?ref="+addr;
+// referral
+document.getElementById("refInput").value =
+window.location.origin + "?ref=" + addr;
 
+setStatus("Wallet connected");
+
+// load dashboard
 loadData();
 setInterval(loadData,10000);
-
-setStatus("Connected");
 
 }catch(e){
 console.log(e);
