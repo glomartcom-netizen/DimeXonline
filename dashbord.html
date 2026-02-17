@@ -1,113 +1,36 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DimeX Dashboard</title>
+<!DOCTYPE html><html>  <head>  
+<meta charset="UTF-8">  
+<meta name="viewport" content="width=device-width, initial-scale=1.0">  
+<title>DimeX Dashboard</title><script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script><script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css"><style>  
+body{margin:0;background:#000;color:#fff;font-family:Arial}  
+.header-row{display:flex;justify-content:center;align-items:center;gap:10px;padding:20px}  
+.logo{width:60px;height:60px}  
+.title{font-size:24px;font-weight:bold;color:gold}  
+.btn{background:gold;border:none;padding:14px;border-radius:10px;font-weight:bold;font-size:15px;cursor:pointer;width:260px;margin-top:12px}  
+.card{background:#111;padding:18px;border-radius:14px;margin:14px auto;width:92%;text-align:center}  
+.statGrid{display:grid;grid-template-columns:1fr;gap:12px;width:92%;margin:auto}  
+.statBox{background:#111;padding:14px;border-radius:12px}  
+.statValue{color:gold;font-weight:bold;font-size:18px;margin-top:6px}  
+input{padding:14px;width:90%;margin:12px;background:#000;color:#fff;border:1px solid #333;border-radius:8px;font-size:16px}  
+@media(min-width:768px){  
+.statGrid{grid-template-columns:1fr 1fr;width:60%}  
+}  
+</style></head><body><div class="header-row">  
+<img src="https://i.ibb.co/zVB8fHMD/logo.png" class="logo">  
+<div class="title">DimeX Dashboard</div>  
+</div><div style="text-align:center;">  
+<button class="btn" onclick="connect()">CONNECT WALLET</button>  
+</div><div id="wallet" style="text-align:center;color:#aaa"></div>  
+<div id="status" style="text-align:center;color:gold"></div><div class="statGrid">  
+<div class="statBox">Total Stake<div id="totalStake" class="statValue">0</div></div>  
+<div class="statBox">Daily Reward<div id="dailyReward" class="statValue">0</div></div>  
+<div class="statBox">Total Income<div id="totalIncome" class="statValue">0</div></div>  
+<div class="statBox">Direct Income<div id="directIncome" class="statValue">0</div></div>  
+<div class="statBox">Level Income<div id="levelIncome" class="statValue">0</div></div>  
+<div class="statBox">Team Count<div id="teamCount" class="statValue">0</div></div>  
+</div><script>  let provider, signer;
 
-<script src="https://cdn.jsdelivr.net/npm/ethers@5.7.2/dist/ethers.min.js"></script>
-<script src="https://unpkg.com/@walletconnect/ethereum-provider@2.11.0/dist/index.umd.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-
-<style>
-body{margin:0;background:#000;color:#fff;font-family:Arial}
-
-.header-row{
-display:flex;
-justify-content:center;
-align-items:center;
-gap:12px;
-padding:20px;
-}
-
-.logo{
-width:60px;
-height:60px;
-}
-
-.title{
-font-size:24px;
-font-weight:bold;
-color:gold;
-}
-
-.btn{
-background:gold;
-border:none;
-padding:12px 22px;
-border-radius:10px;
-font-weight:bold;
-font-size:15px;
-cursor:pointer;
-width:240px;
-margin-top:12px;
-}
-
-.card{
-background:#111;
-padding:18px;
-border-radius:14px;
-margin:14px auto;
-width:92%;
-text-align:center;
-}
-
-.statGrid{
-display:grid;
-grid-template-columns:1fr;
-gap:12px;
-width:92%;
-margin:auto;
-}
-
-.statBox{
-background:#111;
-padding:14px;
-border-radius:12px;
-}
-
-.statValue{
-color:gold;
-font-weight:bold;
-font-size:18px;
-margin-top:6px;
-}
-
-@media(min-width:768px){
-.statGrid{grid-template-columns:1fr 1fr;width:60%}
-.btn{width:260px}
-}
-</style>
-</head>
-
-<body>
-
-<div class="header-row">
-<img src="https://i.ibb.co/zVB8fHMD/logo.png" class="logo">
-<div class="title">DimeX Dashboard</div>
-</div>
-
-<div style="text-align:center;">
-<button class="btn" onclick="connect()">CONNECT WALLET</button>
-</div>
-
-<div id="wallet" style="text-align:center;color:#aaa;margin-top:10px;"></div>
-<div id="status" style="text-align:center;color:gold;margin-bottom:10px;"></div>
-
-<div class="statGrid">
-<div class="statBox">Total Stake<div id="totalStake" class="statValue">0</div></div>
-<div class="statBox">Daily Reward<div id="dailyReward" class="statValue">0</div></div>
-<div class="statBox">Total Income<div id="totalIncome" class="statValue">0</div></div>
-<div class="statBox">Direct Income<div id="directIncome" class="statValue">0</div></div>
-<div class="statBox">Level Income<div id="levelIncome" class="statValue">0</div></div>
-<div class="statBox">Team Count<div id="teamCount" class="statValue">0</div></div>
-</div>
-
-<script>
-
-let provider, signer;
-
-// CONNECT WALLET
+// 🔴 CONNECT WALLET
 async function connect(){
 
 try{
@@ -116,16 +39,18 @@ document.getElementById("status").innerHTML="Connecting wallet...";
 
 let providerInstance;
 
-// DESKTOP METAMASK
+// 🟢 METAMASK DESKTOP
 if(window.ethereum){
 providerInstance = new ethers.providers.Web3Provider(window.ethereum);
 await providerInstance.send("eth_requestAccounts", []);
 }
 
-// MOBILE WALLETCONNECT
+// 🔵 MOBILE ALL WALLET
 else{
 
-const wc = await window.EthereumProvider.init({
+const EthereumProvider = window.EthereumProvider;
+
+const wc = await EthereumProvider.init({
 projectId: "62a73933d62534edcd2f54b8a06c4319",
 chains: [56],
 showQrModal: true,
@@ -139,6 +64,7 @@ icons:["https://i.ibb.co/zVB8fHMD/logo.png"]
 
 await wc.enable();
 providerInstance = new ethers.providers.Web3Provider(wc);
+
 }
 
 provider = providerInstance;
@@ -147,7 +73,7 @@ signer = provider.getSigner();
 const net = await provider.getNetwork();
 
 if(net.chainId !== 56){
-alert("Switch wallet to BNB Smart Chain");
+alert("Switch to BNB Smart Chain");
 return;
 }
 
@@ -161,7 +87,7 @@ alert("Wallet connect failed");
 }
 
 }
-</script>
 
-</body>
-                                                                              </html>
+</script></body>
+
+  </html>
